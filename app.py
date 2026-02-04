@@ -245,7 +245,7 @@ def generate_usernames(token, chat_id, num_threads=7):
 def main():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown('<h1 class="title">تطوير ايمو</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">✧✧✧✧✧✧✧✧✧✧✧✧✧✧✧</p>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">✧✧✧✧✧✧✧✧✧✧✧✧✧</p>', unsafe_allow_html=True)
     
     # قسم الإدخال
     with st.container():
@@ -253,10 +253,10 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            chat_id = st.text_input("𝙸𝙳", placeholder="عزيزي ضع الـ 𝙸𝙳 هنا")
+            chat_id = st.text_input("𝙸𝙳", placeholder="ضـع ايـديك هـنـا")
         
         with col2:
-            token = st.text_input("𝙱𝚘𝚝 𝚃𝚘𝚔𝚎𝚗", placeholder="عزيزي ضع 𝚃𝚘𝚔𝚎𝚗 هنا", type="password")
+            token = st.text_input("𝙱𝚘𝚝 𝚃𝚘𝚔𝚎𝚗", placeholder="ضـع تـوكنك هـنـا", type="password")
         
         num_threads = st.slider("𝙽𝚞𝚖𝚋𝚎𝚛 𝚘𝚏 𝚃𝚑𝚛𝚎𝚊𝚍𝚜", min_value=1, max_value=20, value=7, help="More threads = faster checking")
         
@@ -296,12 +296,12 @@ def main():
             global stop_threads
             stop_threads = True
             st.session_state.running = False
-            st.warning("⏹️ Checking stopped!")
+            st.warning("✦ 𝙲𝚑𝚎𝚌𝚔𝚒𝚗𝚐 𝚜𝚝𝚘𝚙𝚙𝚎𝚍 ✦")
     
     # عرض الإحصائيات
     with col_stats:
         st.metric("📊 Total Checked", st.session_state.stats['total'])
-        st.metric("✅ Available", st.session_state.stats['good'])
+        st.metric("✧ 𝒖𝒔𝒆𝒓 ✧", st.session_state.stats['good'])
     
     # قسم النتائج
     if st.session_state.running or 'results' in st.session_state:
@@ -347,8 +347,8 @@ def main():
     # التذييل
     st.markdown("""
     <div class="footer">
-    <p>✧<strong>EMO</strong> | قناة المطور ايمو: <a href="https://t.me/emoi2" style="color:#ff7e5f;">@legox3</a></p>
-    <p style="font-size:0.8rem; opacity:0.7;">This tool is for educational purposes only</p>
+    <p>✧<strong>EMO</strong> | قناة المطور ايمو: <a href="https://t.me/emoi2" style="color:#ff7e5f;">@emoi2</a></p>
+    <p style="font-size:0.8rem; opacity:0.7;">𝚎𝚖𝚘𝚒𝟸</p>
     </div>
     """, unsafe_allow_html=True)
 
