@@ -244,8 +244,8 @@ def generate_usernames(token, chat_id, num_threads=7):
 # --- واجهة Streamlit الرئيسية ---
 def main():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown('<h1 class="title">تم تطوير من قبل ايمو</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Check available Instagram usernames automatically</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="title">تطوير ايمو</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">✧✧✧✧✧✧✧✧✧✧✧✧✧✧✧</p>', unsafe_allow_html=True)
     
     # قسم الإدخال
     with st.container():
@@ -253,10 +253,10 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            chat_id = st.text_input("𝙸𝙳", placeholder="Enter your Telegram Chat ID")
+            chat_id = st.text_input("𝙸𝙳", placeholder="عزيزي ضع الـ 𝙸𝙳 هنا")
         
         with col2:
-            token = st.text_input("𝙱𝚘𝚝 𝚃𝚘𝚔𝚎𝚗", placeholder="Enter your Telegram Bot Token", type="password")
+            token = st.text_input("𝙱𝚘𝚝 𝚃𝚘𝚔𝚎𝚗", placeholder="عزيزي ضع 𝚃𝚘𝚔𝚎𝚗 هنا", type="password")
         
         num_threads = st.slider("𝙽𝚞𝚖𝚋𝚎𝚛 𝚘𝚏 𝚃𝚑𝚛𝚎𝚊𝚍𝚜", min_value=1, max_value=20, value=7, help="More threads = faster checking")
         
@@ -347,7 +347,7 @@ def main():
     # التذييل
     st.markdown("""
     <div class="footer">
-    <p>🔧 Developed by <strong>EMO</strong> | قناة المطور ايمو: <a href="https://t.me/emoi2" style="color:#ff7e5f;">@legox3</a></p>
+    <p>✧<strong>EMO</strong> | قناة المطور ايمو: <a href="https://t.me/emoi2" style="color:#ff7e5f;">@legox3</a></p>
     <p style="font-size:0.8rem; opacity:0.7;">This tool is for educational purposes only</p>
     </div>
     """, unsafe_allow_html=True)
