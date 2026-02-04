@@ -5,6 +5,12 @@ import random
 import time
 from queue import Queue
 
+# --- المتغيرات العالمية ---
+insta = "1234567890qwertyuiopasdfghjklzxcvbnm"
+all_chars = "_"
+results_queue = Queue()
+stop_threads = False  # ⬅️ تعريف المتغير هنا على مستوى الملف
+
 # --- إعدادات Streamlit خفيفة ---
 st.set_page_config(
     page_title="Instagram Username Checker",
@@ -176,16 +182,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- المتغيرات العامة ---
-insta = "1234567890qwertyuiopasdfghjklzxcvbnm"
-all_chars = "_"
-results_queue = Queue()
-stop_threads = False
-
 # --- دالة التحقق من اسم المستخدم ---
 def check_instagram_username(user, token, chat_id):
-    global stop_threads
-    
+    # لا نحتاج global هنا لأن stop_threads معرفة على مستوى الملف
     if stop_threads:
         return
         
@@ -266,10 +265,12 @@ def check_instagram_username(user, token, chat_id):
 
 # --- دالة توليد الأسماء ---
 def generate_usernames(token, chat_id, num_threads=7):
+    # نستخدم global هنا لتعديل المتغير
     global stop_threads
     stop_threads = False
     
     def worker():
+        # نستخدم nonlocal أو نصل مباشرة للمتغير
         while not stop_threads:
             v1 = str(''.join((random.choice(insta) for i in range(1))))
             v2 = str(''.join((random.choice(insta) for i in range(1))))
@@ -362,6 +363,7 @@ def main():
         st.session_state.results = []
         
         # بدء الخيوط
+        # نستخدم global لتعديل المتغير
         global stop_threads
         stop_threads = False
         st.session_state.threads = generate_usernames(token, chat_id, num_threads)
@@ -369,6 +371,7 @@ def main():
         st.success("✅ Checking started!")
     
     if stop_button and st.session_state.running:
+        # نستخدم global لتعديل المتغير
         global stop_threads
         stop_threads = True
         st.session_state.running = False
