@@ -9,8 +9,8 @@ from queue import Queue
 
 # --- إعدادات Streamlit ---
 st.set_page_config(
-    page_title="Instagram Username Checker",
-    page_icon="🔍",
+    page_title="تم تطوير من قبل ايمو ",
+    page_icon="",
     layout="centered"
 )
 
@@ -244,7 +244,7 @@ def generate_usernames(token, chat_id, num_threads=7):
 # --- واجهة Streamlit الرئيسية ---
 def main():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown('<h1 class="title">🔍 Instagram Username Checker</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="title">تم تطوير من قبل ايمو</h1>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">Check available Instagram usernames automatically</p>', unsafe_allow_html=True)
     
     # قسم الإدخال
@@ -253,12 +253,12 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            chat_id = st.text_input("💬 Chat ID", placeholder="Enter your Telegram Chat ID")
+            chat_id = st.text_input("𝙸𝙳", placeholder="Enter your Telegram Chat ID")
         
         with col2:
-            token = st.text_input("🔑 Bot Token", placeholder="Enter your Telegram Bot Token", type="password")
+            token = st.text_input("𝙱𝚘𝚝 𝚃𝚘𝚔𝚎𝚗", placeholder="Enter your Telegram Bot Token", type="password")
         
-        num_threads = st.slider("⚡ Number of Threads", min_value=1, max_value=20, value=7, help="More threads = faster checking")
+        num_threads = st.slider("𝙽𝚞𝚖𝚋𝚎𝚛 𝚘𝚏 𝚃𝚑𝚛𝚎𝚊𝚍𝚜", min_value=1, max_value=20, value=7, help="More threads = faster checking")
         
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -266,10 +266,10 @@ def main():
     col_start, col_stop, col_stats = st.columns(3)
     
     with col_start:
-        start_button = st.button("🚀 Start Checking", use_container_width=True)
+        start_button = st.button("𝚂𝚝𝚊𝚛𝚝 𝙲𝚑𝚎𝚌𝚔𝚒𝚗𝚐", use_container_width=True)
     
     with col_stop:
-        stop_button = st.button("⏹️ Stop", use_container_width=True)
+        stop_button = st.button("𝚂𝚝𝚘𝚙", use_container_width=True)
     
     # قسم الإحصائيات والنتائج
     if 'stats' not in st.session_state:
@@ -347,7 +347,7 @@ def main():
     # التذييل
     st.markdown("""
     <div class="footer">
-    <p>🔧 Developed by <strong>EMO</strong> | 📱 Telegram: <a href="https://t.me/legox3" style="color:#ff7e5f;">@legox3</a></p>
+    <p>🔧 Developed by <strong>EMO</strong> | قناة المطور ايمو: <a href="https://t.me/emoi2" style="color:#ff7e5f;">@legox3</a></p>
     <p style="font-size:0.8rem; opacity:0.7;">This tool is for educational purposes only</p>
     </div>
     """, unsafe_allow_html=True)
