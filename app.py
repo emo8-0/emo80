@@ -2,189 +2,133 @@ import streamlit as st
 import requests
 import threading
 import random
+import datetime
 import time
+import sys
 from queue import Queue
 
-# --- المتغيرات العالمية ---
-insta = "1234567890qwertyuiopasdfghjklzxcvbnm"
-all_chars = "_"
-results_queue = Queue()
-stop_threads = False  # ⬅️ تعريف المتغير هنا على مستوى الملف
-
-# --- إعدادات Streamlit خفيفة ---
+# --- إعدادات Streamlit ---
 st.set_page_config(
     page_title="Instagram Username Checker",
     page_icon="🔍",
     layout="centered"
 )
 
-# --- CSS خفيف جداً ---
+# --- CSS مخصص للتصميم ---
 st.markdown("""
 <style>
 .stApp {
-    background-color: #f8f9fa;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
-.header {
+.main-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.title {
     text-align: center;
-    padding: 20px 0;
-    border-bottom: 2px solid #e9ecef;
+    font-size: 2.5rem;
+    background: linear-gradient(90deg, #ff7e5f, #feb47b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #d1c4e9;
     margin-bottom: 30px;
+    font-size: 1.1rem;
 }
 
-.header h1 {
-    color: #2d3436;
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.header p {
-    color: #636e72;
-    font-size: 14px;
-}
-
-.input-section {
-    background: white;
+.input-box {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-}
-
-.input-label {
-    color: #2d3436;
-    font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
-    font-size: 14px;
-}
-
-.stTextInput>div>div>input {
-    border: 1.5px solid #dfe6e9;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 14px;
-}
-
-.stTextInput>div>div>input:focus {
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+    padding: 20px;
+    margin: 15px 0;
 }
 
 .stButton>button {
-    background: #6c5ce7;
+    background: linear-gradient(45deg, #ff7e5f, #feb47b);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
+    border-radius: 12px;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
     width: 100%;
+    margin-top: 20px;
 }
 
 .stButton>button:hover {
-    background: #5b4bcf;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 126, 95, 0.3);
 }
 
-.stButton>button:disabled {
-    background: #a29bfe;
-    cursor: not-allowed;
-}
-
-.results-container {
-    background: white;
+.results-box {
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     padding: 20px;
-    margin-top: 20px;
-    border: 1px solid #e9ecef;
+    margin: 20px 0;
     max-height: 400px;
     overflow-y: auto;
 }
 
-.result-item {
-    padding: 10px 12px;
-    margin: 6px 0;
+.status-good {
+    color: #4CAF50;
+    font-weight: bold;
+    padding: 5px 10px;
+    background: rgba(76, 175, 80, 0.1);
     border-radius: 6px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
+    margin: 5px 0;
 }
 
-.result-good {
-    background: #d4edda;
-    color: #155724;
-    border-left: 4px solid #28a745;
+.status-bad {
+    color: #f44336;
+    padding: 5px 10px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 6px;
+    margin: 5px 0;
 }
 
-.result-bad {
-    background: #f8d7da;
-    color: #721c24;
-    border-left: 4px solid #dc3545;
-}
-
-.result-error {
-    background: #fff3cd;
-    color: #856404;
-    border-left: 4px solid #ffc107;
-}
-
-.stats-card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #2d3436;
-}
-
-.stat-label {
-    font-size: 12px;
-    color: #636e72;
-    margin-top: 4px;
+.status-error {
+    color: #ff9800;
+    padding: 5px 10px;
+    background: rgba(255, 152, 0, 0.1);
+    border-radius: 6px;
+    margin: 5px 0;
 }
 
 .footer {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 30px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
     padding-top: 20px;
-    border-top: 1px solid #e9ecef;
-    color: #636e72;
-    font-size: 12px;
-}
-
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #6c5ce7;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>
 """, unsafe_allow_html=True)
 
+# --- المتغيرات العامة ---
+insta = "1234567890qwertyuiopasdfghjklzxcvbnm"
+all_chars = "_"
+results_queue = Queue()
+stop_threads = False
+
 # --- دالة التحقق من اسم المستخدم ---
 def check_instagram_username(user, token, chat_id):
-    # لا نحتاج global هنا لأن stop_threads معرفة على مستوى الملف
+    global stop_threads
+    
     if stop_threads:
         return
         
@@ -239,13 +183,13 @@ def check_instagram_username(user, token, chat_id):
             results_queue.put(('good', user))
             # إرسال إلى تيليجرام
             message = f"""
-🔍 *Instagram Username Found!*
+* المطور ايمو*
             
-🎯 **Username:** `{user}`
+ **𝒖𝒔𝒆𝒓:** `{user}`
             
 ---
-📱 *Developer:* @zeon_f9 • @bo_d7 • @K66Z6
-📢 *Channel:* https://t.me/legox3
+ *قناة الخاصه بالادوات المدفوع:* https://t.me/+s7YdDEz2RLNjMDEy
+ *قناتي الاساسية:* https://t.me/emoi2
 ---
             """
             telegram_url = f'https://api.telegram.org/bot{token}/sendMessage'
@@ -265,12 +209,10 @@ def check_instagram_username(user, token, chat_id):
 
 # --- دالة توليد الأسماء ---
 def generate_usernames(token, chat_id, num_threads=7):
-    # نستخدم global هنا لتعديل المتغير
     global stop_threads
     stop_threads = False
     
     def worker():
-        # نستخدم nonlocal أو نصل مباشرة للمتغير
         while not stop_threads:
             v1 = str(''.join((random.choice(insta) for i in range(1))))
             v2 = str(''.join((random.choice(insta) for i in range(1))))
@@ -287,8 +229,9 @@ def generate_usernames(token, chat_id, num_threads=7):
             user = random.choice(possible_users)
             
             check_instagram_username(user, token, chat_id)
-            time.sleep(random.uniform(0.5, 1.5))
+            time.sleep(random.uniform(0.5, 1.5))  # تأخير عشوائي
     
+    # إنشاء الخيوط
     threads = []
     for _ in range(num_threads):
         thread = threading.Thread(target=worker)
@@ -300,89 +243,73 @@ def generate_usernames(token, chat_id, num_threads=7):
 
 # --- واجهة Streamlit الرئيسية ---
 def main():
-    # الهيدر
-    st.markdown("""
-    <div class="header">
-        <h1>🔍 Instagram Username Checker</h1>
-        <p>Automatically check available Instagram usernames</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+    st.markdown('<h1 class="title">🔍 Instagram Username Checker</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Check available Instagram usernames automatically</p>', unsafe_allow_html=True)
     
     # قسم الإدخال
     with st.container():
-        st.markdown('<div class="input-section">', unsafe_allow_html=True)
-        
+        st.markdown('<div class="input-box">', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown('<span class="input-label">💬 Telegram Chat ID</span>', unsafe_allow_html=True)
-            chat_id = st.text_input("", placeholder="Enter your Chat ID", label_visibility="collapsed")
+            chat_id = st.text_input("💬 Chat ID", placeholder="Enter your Telegram Chat ID")
         
         with col2:
-            st.markdown('<span class="input-label">🔑 Bot Token</span>', unsafe_allow_html=True)
-            token = st.text_input("", placeholder="Enter your Bot Token", type="password", label_visibility="collapsed")
+            token = st.text_input("🔑 Bot Token", placeholder="Enter your Telegram Bot Token", type="password")
         
-        st.markdown('<span class="input-label" style="margin-top: 20px;">⚡ Number of Threads</span>', unsafe_allow_html=True)
-        num_threads = st.slider("", min_value=1, max_value=10, value=3, help="Recommended: 3-5 threads", label_visibility="collapsed")
+        num_threads = st.slider("⚡ Number of Threads", min_value=1, max_value=20, value=7, help="More threads = faster checking")
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # الأزرار والإحصائيات
-    col1, col2, col3 = st.columns([2, 2, 3])
+    # قسم التحكم
+    col_start, col_stop, col_stats = st.columns(3)
     
-    with col1:
-        start_button = st.button("🚀 Start Checking", disabled=st.session_state.get('running', False))
+    with col_start:
+        start_button = st.button("🚀 Start Checking", use_container_width=True)
     
-    with col2:
-        stop_button = st.button("⏹️ Stop", disabled=not st.session_state.get('running', False))
+    with col_stop:
+        stop_button = st.button("⏹️ Stop", use_container_width=True)
     
-    with col3:
-        st.markdown('<div class="stats-card">', unsafe_allow_html=True)
-        if 'stats' in st.session_state:
-            st.markdown(f'<div class="stat-value">{st.session_state.stats["total"]}</div>', unsafe_allow_html=True)
-            st.markdown('<div class="stat-label">Total Checked</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div class="stat-value">0</div>', unsafe_allow_html=True)
-            st.markdown('<div class="stat-label">Total Checked</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # تهيئة حالة الجلسة
+    # قسم الإحصائيات والنتائج
     if 'stats' not in st.session_state:
         st.session_state.stats = {'total': 0, 'good': 0, 'bad': 0, 'error': 0}
     
     if 'running' not in st.session_state:
         st.session_state.running = False
     
-    if 'results' not in st.session_state:
-        st.session_state.results = []
+    # معالجة زر البدء
+    if start_button and chat_id and token:
+        if not st.session_state.running:
+            st.session_state.running = True
+            st.session_state.stats = {'total': 0, 'good': 0, 'bad': 0, 'error': 0}
+            st.session_state.results = []
+            
+            # بدء الخيوط في خلفية منفصلة
+            st.session_state.threads = generate_usernames(token, chat_id, num_threads)
+            
+            st.success("✅ Checking started! Results will appear below.")
     
-    # معالجة الأحداث
-    if start_button and chat_id and token and not st.session_state.running:
-        st.session_state.running = True
-        st.session_state.stats = {'total': 0, 'good': 0, 'bad': 0, 'error': 0}
-        st.session_state.results = []
-        
-        # بدء الخيوط
-        # نستخدم global لتعديل المتغير
-        global stop_threads
-        stop_threads = False
-        st.session_state.threads = generate_usernames(token, chat_id, num_threads)
-        
-        st.success("✅ Checking started!")
-    
-    if stop_button and st.session_state.running:
-        # نستخدم global لتعديل المتغير
-        global stop_threads
-        stop_threads = True
-        st.session_state.running = False
-        st.warning("⏹️ Checking stopped!")
-    
-    # عرض النتائج
-    if st.session_state.running or st.session_state.results:
-        st.markdown("### 📊 Live Results")
-        
-        # تحديث النتائج
+    # معالجة زر الإيقاف
+    if stop_button:
         if st.session_state.running:
+            global stop_threads
+            stop_threads = True
+            st.session_state.running = False
+            st.warning("⏹️ Checking stopped!")
+    
+    # عرض الإحصائيات
+    with col_stats:
+        st.metric("📊 Total Checked", st.session_state.stats['total'])
+        st.metric("✅ Available", st.session_state.stats['good'])
+    
+    # قسم النتائج
+    if st.session_state.running or 'results' in st.session_state:
+        st.markdown("### 📋 Results")
+        results_container = st.empty()
+        
+        # تحديث النتائج في الوقت الحقيقي
+        while st.session_state.running:
             new_results = []
             while not results_queue.empty():
                 status, username = results_queue.get()
@@ -390,33 +317,38 @@ def main():
                 
                 if status == 'good':
                     st.session_state.stats['good'] += 1
-                    new_results.append(f'<div class="result-item result-good">✅ Available: {username}</div>')
+                    new_results.append(f'<div class="status-good">✅ Available: {username}</div>')
                 elif status == 'bad':
                     st.session_state.stats['bad'] += 1
-                    new_results.append(f'<div class="result-item result-bad">❌ Taken: {username}</div>')
+                    new_results.append(f'<div class="status-bad">❌ Taken: {username}</div>')
                 else:
                     st.session_state.stats['error'] += 1
-                    new_results.append(f'<div class="result-item result-error">⚠️ Error: {username}</div>')
+                    new_results.append(f'<div class="status-error">⚠️ Error: {username}</div>')
             
             if new_results:
+                if 'results' not in st.session_state:
+                    st.session_state.results = []
                 st.session_state.results = new_results + st.session_state.results
-        
-        # عرض النتائج
-        results_container = st.empty()
-        if st.session_state.results:
-            results_html = '<div class="results-container">' + ''.join(st.session_state.results[:30]) + '</div>'
-            results_container.markdown(results_html, unsafe_allow_html=True)
-        
-        # تحديث تلقائي عند التشغيل
-        if st.session_state.running:
+            
+            # تحديث العرض
+            if 'results' in st.session_state and st.session_state.results:
+                results_html = '<div class="results-box">' + ''.join(st.session_state.results[:50]) + '</div>'
+                results_container.markdown(results_html, unsafe_allow_html=True)
+            
             time.sleep(0.5)
-            st.rerun()
+        
+        # عرض النتائج النهائية بعد التوقف
+        if 'results' in st.session_state and st.session_state.results:
+            results_html = '<div class="results-box">' + ''.join(st.session_state.results[:50]) + '</div>'
+            results_container.markdown(results_html, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # التذييل
     st.markdown("""
     <div class="footer">
-        <p>🔧 Developed by <strong>EMO</strong> | 📱 Telegram: <a href="https://t.me/legox3" target="_blank" style="color:#6c5ce7; text-decoration:none;">@legox3</a></p>
-        <p style="margin-top: 5px; opacity: 0.8;">For educational purposes only • Lightweight design for better performance</p>
+    <p>🔧 Developed by <strong>EMO</strong> | 📱 Telegram: <a href="https://t.me/legox3" style="color:#ff7e5f;">@legox3</a></p>
+    <p style="font-size:0.8rem; opacity:0.7;">This tool is for educational purposes only</p>
     </div>
     """, unsafe_allow_html=True)
 
